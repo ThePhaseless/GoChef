@@ -1,4 +1,4 @@
-package gen
+package main
 
 import (
 	model "github.com/ThePhaseless/GoChef/model"

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ThePhaseless/GoChef/gen"
+	custom_middlewares "github.com/ThePhaseless/GoChef/middlewares"
 	"github.com/ThePhaseless/GoChef/model"
 	"github.com/ThePhaseless/GoChef/query"
 	"gorm.io/driver/sqlite"
@@ -40,7 +40,7 @@ func main() {
 		panic(err)
 	}
 
-	gen.GenerateQuery(db)
+	GenerateQuery(db)
 
 	query.SetDefault(db)
 
@@ -52,6 +52,7 @@ func main() {
 		Summary:     "Get a greeting",
 		Description: "Get a greeting for a person by name.",
 		Tags:        []string{"Greetings"},
+		Middlewares: huma.Middlewares{custom_middlewares.RateLimitMiddleware(api)},
 	}, func(ctx context.Context, input *struct {
 		Name string `path:"name" maxLength:"30" example:"world" doc:"Name to greet"`
 	}) (*model.GreetingOutput, error) {
