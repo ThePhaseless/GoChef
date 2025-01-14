@@ -5,6 +5,7 @@ go 1.23.4
 require (
 	github.com/danielgtaylor/huma/v2 v2.27.0
 	github.com/go-chi/chi/v5 v5.1.0
+	golang.org/x/time v0.9.0
 	gorm.io/driver/sqlite v1.5.0
 	gorm.io/gen v0.3.26
 	gorm.io/gorm v1.25.12
@@ -23,7 +24,6 @@ require (
 	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
-	golang.org/x/time v0.9.0 // indirect
 	golang.org/x/tools v0.29.0 // indirect
 	gorm.io/datatypes v1.2.5 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
