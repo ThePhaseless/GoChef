@@ -33,8 +33,10 @@ func main() {
 	router := chi.NewMux()
 	api := humachi.New(router, huma.DefaultConfig("My API", "1.0.0"))
 
-	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
-	db.AutoMigrate(&model.User{})
+	sqliteDb := sqlite.Open("test.db")
+	db, err := gorm.Open(sqliteDb, &gorm.Config{})
+	db.Raw("PRAGMA journal_mode=WAL;")
+	_ = db.AutoMigrate(&model.User{})
 
 	if err != nil {
 		panic(err)
