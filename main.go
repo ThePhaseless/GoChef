@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"log"
+	"mime/multipart"
 	"net/http"
 
 	custom_middlewares "github.com/ThePhaseless/GoChef/middlewares"
@@ -78,7 +82,7 @@ func main() {
 		Description: "Get names.",
 		Tags:        []string{"Names"},
 	}, func(ctx context.Context, i *model.PaginateInput) (*InBody[[]*model.User], error) {
-		users, _, err := query.User.FindByPage(i.Page, i.Limit)
+		users, _, err := query.User.FindByPage((i.Page)*i.Limit, i.Limit)
 
 		if err != nil {
 			return nil, huma.Error400BadRequest(err.Error())
@@ -103,6 +107,43 @@ func main() {
 			return nil, huma.Error406NotAcceptable("You know why...")
 		})
 
+	huma.Register(
+		api,
+		huma.Operation{
+			OperationID: "upload-name",
+			Method:      http.MethodPost,
+			Path:        "/upload",
+			Summary:     "Upload name",
+			Description: "Upload a name in file to greet",
+			Tags:        []string{"Names"},
+		},
+		func(ctx context.Context, input *struct {
+			RawBody multipart.Form
+		}) (*InBody[string], error) {
+			file, _ := (input.RawBody.File["filename"][0]).Open()
+
+			var buf bytes.Buffer
+			_, err = io.Copy(&buf, file)
+			if err != nil {
+				return nil, huma.Error500InternalServerError(err.Error())
+			}
+
+			// The file content is in buf.Bytes()
+			content := buf.String()
+
+			err = query.User.Create(&model.User{Name: content})
+
+			if err != nil {
+				return nil, huma.Error500InternalServerError(err.Error())
+			}
+
+			return WrapInBody("Hello " + content), nil
+		},
+	)
+
 	// Start the server!
-	http.ListenAndServe("127.0.0.1:8888", router)
+	err = http.ListenAndServe("127.0.0.1:8888", router)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
